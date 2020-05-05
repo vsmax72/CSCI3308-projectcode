@@ -25,13 +25,14 @@ SECRET_KEY = '^3v348s)0ev)m^2ulirz17dpns(p13q0f^*9yo&-%t@#%*&!0g'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
 
+    'users.apps.UsersConfig',
     'music.apps.MusicConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -124,4 +125,7 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+#come back and change
+LOGIN_REDIRECT_URL = '/music/index'
 

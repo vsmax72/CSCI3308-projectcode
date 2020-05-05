@@ -2,7 +2,6 @@ import os
 from tkinter.filedialog import askdirectory
 
 import pygame
-from mutagen.id3 import ID3
 from tkinter import *
 
 root = Tk()
@@ -29,7 +28,6 @@ def directorychooser():
 
     pygame.mixer.init()
     pygame.mixer.music.load(listofsongs[0])
-    # pygame.mixer.music.play()
 
 
 directorychooser()

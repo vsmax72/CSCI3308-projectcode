@@ -1,13 +1,21 @@
 from django.views import generic
 from .models import Album 
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.list import ListView
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login
 from django.views.generic import View
+from django.http import HttpResponse
+from django.template import loader
 from .forms import UserForm
+from .models import Song
 
 
+def home(request):
+	template = loader.get_template('music/home.html')
+	context = {}
+	return HttpResponse(template.render(context, request))
 
 
 class IndexView(generic.ListView):
@@ -21,6 +29,15 @@ class IndexView(generic.ListView):
 class DetailView(generic.DetailView):
 	model = Album
 	template_name = 'music/detail.html'
+
+class QueueView(ListView):
+	template_name = 'music/queue.html'
+	context_object_name = 'all_songs'
+	model = Song
+
+	def get_queryset(self):
+		return Song.objects.filter(is_upvote = True)
+
 
 
 class AlbumCreate(CreateView):
@@ -38,6 +55,8 @@ class AlbumDelete(DeleteView):
 class UserFormView(View):
 	form_class = UserForm
 	template_name = 'music/registration_form.html'
+
+
 
 	#dispalay blank form
 	def get(self, request):
@@ -72,7 +91,7 @@ class UserFormView(View):
 
 
 
-def vote(request, album_id):
+def addqueue(request, album_id):
 	album = get_object_or_404(Album, pk= album_id)
 	try:
 		selected_song = album.song_set.get(pk=request.POST['song'])
@@ -82,20 +101,23 @@ def vote(request, album_id):
 			'error_message': "You did not select a valid song",
 			})
 	else:
-
-		if 'up' in request.POST:
-			selected_song.is_downvote = False
-			selected_song.is_upvote = True
-		elif 'down' in request.POST:
-			selected_song.is_upvote = False
-			selected_song.is_downvote = True
-		elif 'clear' in request.POST:
-			selected_song.is_upvote = False
-			selected_song.is_downvote = False
-
-			
+		selected_song.is_upvote = True
 		selected_song.save()
-		return render(request, 'music/detail.html')
+		return render(request, 'music/detail.html', {'album':album})
+
+		
+
+def play(request, album_id):
+	album = get_object_or_404(Album, pk= album_id)
+	try:
+		selected_song = album.song_set.get(pk=request.POST['song'])
+	except(KeyError, Song.DoesNotExist):
+		return render(request, 'music/detail.html', {
+			'album': album,
+			'error_message': "You did not select a valid song",
+			})
+	else:
+		return render(request, 'music/detail.html', {'album':album})
 
 
 
